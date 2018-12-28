@@ -15,29 +15,29 @@
                 android:id="@+id/action_import_clipboard"
                 android:alphabeticShortcut="v"
                 android:title="@string/action_import"/>
-            <!--<item-->
-                <!--android:id="@+id/action_import_file"-->
-                <!--android:alphabeticShortcut="o"-->
-                <!--android:title="@string/action_import_file"/>-->
-            <!--<item-->
-                <!--android:id="@+id/action_manual_settings"-->
-                <!--android:title="@string/add_profile_methods_manual_settings"/>-->
+            <item
+                android:id="@+id/action_import_file"
+                android:alphabeticShortcut="o"
+                android:title="@string/action_import_file"/>
+            <item
+                android:id="@+id/action_manual_settings"
+                android:title="@string/add_profile_methods_manual_settings"/>
         </menu>
     </item>
-    <!--<item-->
-        <!--android:alphabeticShortcut="s"-->
-        <!--android:icon="@drawable/ic_file_file_upload"-->
-        <!--android:title="@string/action_export_more"-->
-        <!--android:numericShortcut="2"-->
-        <!--app:showAsAction="always">-->
-        <!--<menu>-->
-            <!--<item-->
-                <!--android:id="@+id/action_export_clipboard"-->
-                <!--android:alphabeticShortcut="c"-->
-                <!--android:title="@string/action_export"/>-->
-            <!--<item-->
-                <!--android:id="@+id/action_export_file"-->
-                <!--android:title="@string/action_export_file"/>-->
-        <!--</menu>-->
-    <!--</item>-->
+    <item
+        android:alphabeticShortcut="s"
+        android:icon="@drawable/ic_file_file_upload"
+        android:title="@string/action_export_more"
+        android:numericShortcut="2"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/action_export_clipboard"
+                android:alphabeticShortcut="c"
+                android:title="@string/action_export"/>
+            <item
+                android:id="@+id/action_export_file"
+                android:title="@string/action_export_file"/>
+        </menu>
+    </item>
 </menu>

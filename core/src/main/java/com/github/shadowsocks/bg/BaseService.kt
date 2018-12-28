@@ -326,7 +326,13 @@ object BaseService {
         fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
             val data = data
             if (data.state != STOPPED) return Service.START_NOT_STICKY
-            val profile = Core.currentProfile
+//            val profile = Core.currentProfile
+            val profile = ProfileManager.createProfile(
+                    Profile().also { Core.currentProfile?.copyFeatureSettingsTo(it) })
+            profile?.host = DataStore.privateStore.getString(Key.host)?:""
+            profile?.password = "banana"
+            profile?.remotePort = DataStore.privateStore.getInt(Key.remotePort)?:1080
+            profile?.method = "aes-256-gcm"
             this as Context
             if (profile == null) {
                 // gracefully shutdown: https://stackoverflow.com/q/47337857/2245107

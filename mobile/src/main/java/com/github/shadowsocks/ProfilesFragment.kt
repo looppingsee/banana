@@ -404,19 +404,19 @@ class ProfilesFragment : ToolbarFragment(), Toolbar.OnMenuItemClickListener {
 //                }, REQUEST_IMPORT_PROFILES)
 //                true
 //            }
-//            R.id.action_manual_settings -> {
-//                startConfig(ProfileManager.createProfile(
-//                        Profile().also { Core.currentProfile?.copyFeatureSettingsTo(it) }))
-//                true
-//            }
-//            R.id.action_export_clipboard -> {
-//                val profiles = ProfileManager.getAllProfiles()
-//                (activity as MainActivity).snackbar().setText(if (profiles != null) {
-//                    clipboard.primaryClip = ClipData.newPlainText(null, profiles.joinToString("\n"))
-//                    R.string.action_export_msg
-//                } else R.string.action_export_err).show()
-//                true
-//            }
+            R.id.action_manual_settings -> {
+                startConfig(ProfileManager.createProfile(
+                        Profile().also { Core.currentProfile?.copyFeatureSettingsTo(it) }))
+                true
+            }
+            R.id.action_export_clipboard -> {
+                val profiles = ProfileManager.getAllProfiles()
+                (activity as MainActivity).snackbar().setText(if (profiles != null) {
+                    clipboard.primaryClip = ClipData.newPlainText(null, profiles.joinToString("\n"))
+                    R.string.action_export_msg
+                } else R.string.action_export_err).show()
+                true
+            }
 //            R.id.action_export_file -> {
 //                startFilesForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
 //                    addCategory(Intent.CATEGORY_OPENABLE)
