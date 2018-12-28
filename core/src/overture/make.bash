@@ -4,10 +4,10 @@ function try () {
 "$@" || exit -1
 }
 
-[ -z "$ANDROID_NDK_HOME" ] && ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle
+[ -z "$ANDROID_NDK_HOME" ] && ANDROID_NDK_HOME=/ndk-bundle
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-MIN_API=$1
+MIN_API=21
 TARGET=$DIR/bin
 DEPS=$DIR/.deps
 
@@ -36,6 +36,8 @@ if [ ! -f "$ANDROID_ARM64_CC" ]; then
     echo "Make standalone toolchain for ARM64 arch"
     $ANDROID_NDK_HOME/build/tools/make_standalone_toolchain.py --arch arm64 \
         --api $MIN_API --install-dir $ANDROID_ARM64_TOOLCHAIN
+
+
 fi
 
 if [ ! -f "$ANDROID_X86_CC" ]; then
@@ -45,6 +47,8 @@ if [ ! -f "$ANDROID_X86_CC" ]; then
 fi
 
 export GOPATH=$DIR
+
+echo "sdf":$ANDROID_ARM64_CC
 
 if [ ! -f "$TARGET/armeabi-v7a/liboverture.so" ] || [ ! -f "$TARGET/arm64-v8a/liboverture.so" ] ||
    [ ! -f "$TARGET/x86/liboverture.so" ]; then

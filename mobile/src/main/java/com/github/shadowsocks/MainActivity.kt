@@ -62,7 +62,7 @@ import kotlin.math.roundToInt
 class MainActivity : AppCompatActivity(), ShadowsocksConnection.Interface, OnPreferenceDataStoreChangeListener,
         NavigationView.OnNavigationItemSelectedListener {
     companion object {
-        private const val TAG = "ShadowsocksMainActivity"
+        const val TAG = "ShadowsocksMainActivity"
         private const val REQUEST_CONNECT = 1
 
         var stateListener: ((Int) -> Unit)? = null
@@ -149,6 +149,8 @@ class MainActivity : AppCompatActivity(), ShadowsocksConnection.Interface, OnPre
         stats = findViewById(R.id.stats)
         stats.setOnClickListener { if (state == BaseService.CONNECTED) stats.testConnection() }
         drawer = findViewById(R.id.drawer)
+        //禁止手势滑动
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         navigation = findViewById(R.id.navigation)
         navigation.setNavigationItemSelectedListener(this)
         if (savedInstanceState == null) {

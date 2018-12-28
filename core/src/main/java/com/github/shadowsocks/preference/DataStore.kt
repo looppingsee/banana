@@ -59,7 +59,7 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var profileId: Long
         get() = publicStore.getLong(Key.id) ?: 0
         set(value) = publicStore.putLong(Key.id, value)
-    val canToggleLocked: Boolean get() = publicStore.getBoolean(Key.directBootAware) == true
+    val canToggleLocked: Boolean get() = publicStore.getBoolean(Key.directBootAware) == false
     val directBootAware: Boolean get() = Core.directBootSupported && canToggleLocked
     val tcpFastOpen: Boolean get() = TcpFastOpen.sendEnabled && DataStore.publicStore.getBoolean(Key.tfo, true)
     val serviceMode get() = publicStore.getString(Key.serviceMode) ?: Key.modeVpn

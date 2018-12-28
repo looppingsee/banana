@@ -32,6 +32,7 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.widget.TooltipCompat
@@ -52,8 +53,11 @@ import com.github.shadowsocks.widget.UndoSnackbarManager
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
-import net.glxn.qrgen.android.QRCode
+//import net.glxn.qrgen.android.QRCode
 import org.json.JSONArray
+import com.uuzuche.lib_zxing.activity.CaptureActivity
+import com.uuzuche.lib_zxing.activity.CodeUtils
+
 
 class ProfilesFragment : ToolbarFragment(), Toolbar.OnMenuItemClickListener {
     companion object {
@@ -65,15 +69,18 @@ class ProfilesFragment : ToolbarFragment(), Toolbar.OnMenuItemClickListener {
         private const val KEY_URL = "com.github.shadowsocks.QRCodeDialog.KEY_URL"
         private const val REQUEST_IMPORT_PROFILES = 1
         private const val REQUEST_EXPORT_PROFILES = 2
+        private const val REQUEST_SCAN_QRCODE = 3
     }
 
     /**
      * Is ProfilesFragment editable at all.
      */
-    private val isEnabled get() = when ((activity as MainActivity).state) {
-        BaseService.CONNECTED, BaseService.STOPPED -> true
-        else -> false
-    }
+    private val isEnabled
+        get() = when ((activity as MainActivity).state) {
+            BaseService.CONNECTED, BaseService.STOPPED -> true
+            else -> false
+        }
+
     private fun isProfileEditable(id: Long) = when ((activity as MainActivity).state) {
         BaseService.CONNECTED -> id != DataStore.profileId
         BaseService.STOPPED -> true
@@ -94,7 +101,7 @@ class ProfilesFragment : ToolbarFragment(), Toolbar.OnMenuItemClickListener {
             val image = ImageView(context)
             image.layoutParams = LinearLayout.LayoutParams(-1, -1)
             val size = resources.getDimensionPixelSize(R.dimen.qr_code_size)
-            image.setImageBitmap((QRCode.from(url).withSize(size, size) as QRCode).bitmap())
+//            image.setImageBitmap((QRCode.from(url).withSize(size, size) as QRCode).bitmap())
             return image
         }
 
@@ -231,6 +238,7 @@ class ProfilesFragment : ToolbarFragment(), Toolbar.OnMenuItemClickListener {
         override fun onBindViewHolder(holder: ProfileViewHolder, position: Int) = holder.bind(profiles[position])
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProfileViewHolder = ProfileViewHolder(
                 LayoutInflater.from(parent.context).inflate(R.layout.layout_profile, parent, false))
+
         override fun getItemCount(): Int = profiles.size
         override fun getItemId(position: Int): Long = profiles[position].id
 
@@ -259,6 +267,7 @@ class ProfilesFragment : ToolbarFragment(), Toolbar.OnMenuItemClickListener {
             updated.add(first)
             notifyItemMoved(from, to)
         }
+
         fun commitMove() {
             updated.forEach { ProfileManager.updateProfile(it) }
             updated.clear()
@@ -268,12 +277,14 @@ class ProfilesFragment : ToolbarFragment(), Toolbar.OnMenuItemClickListener {
             profiles.removeAt(pos)
             notifyItemRemoved(pos)
         }
+
         fun undo(actions: List<Pair<Int, Profile>>) {
             for ((index, item) in actions) {
                 profiles.add(index, item)
                 notifyItemInserted(index)
             }
         }
+
         fun commit(actions: List<Pair<Int, Profile>>) {
             for ((_, item) in actions) ProfileManager.delProfile(item.id)
         }
@@ -282,12 +293,14 @@ class ProfilesFragment : ToolbarFragment(), Toolbar.OnMenuItemClickListener {
             val index = profiles.indexOfFirst { it.id == id }
             if (index >= 0) notifyItemChanged(index)
         }
+
         fun deepRefreshId(id: Long) {
             val index = profiles.indexOfFirst { it.id == id }
             if (index < 0) return
             profiles[index] = ProfileManager.getProfile(id)!!
             notifyItemChanged(index)
         }
+
         override fun onRemove(profileId: Long) {
             val index = profiles.indexOfFirst { it.id == profileId }
             if (index < 0) return
@@ -335,10 +348,11 @@ class ProfilesFragment : ToolbarFragment(), Toolbar.OnMenuItemClickListener {
         ProfileManager.listener = profilesAdapter
         undoManager = UndoSnackbarManager(activity as MainActivity, profilesAdapter::undo, profilesAdapter::commit)
         ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN,
-        ItemTouchHelper.START or ItemTouchHelper.END) {
+                ItemTouchHelper.START or ItemTouchHelper.END) {
             override fun getSwipeDirs(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int =
                     if (isProfileEditable((viewHolder as ProfileViewHolder).item.id))
                         super.getSwipeDirs(recyclerView, viewHolder) else 0
+
             override fun getDragDirs(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int =
                     if (isEnabled) super.getDragDirs(recyclerView, viewHolder) else 0
 
@@ -347,11 +361,13 @@ class ProfilesFragment : ToolbarFragment(), Toolbar.OnMenuItemClickListener {
                 profilesAdapter.remove(index)
                 undoManager.remove(Pair(index, (viewHolder as ProfileViewHolder).item))
             }
+
             override fun onMove(recyclerView: RecyclerView,
                                 viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
                 profilesAdapter.move(viewHolder.adapterPosition, target.adapterPosition)
                 return true
             }
+
             override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
                 super.clearView(recyclerView, viewHolder)
                 profilesAdapter.commitMove()
@@ -362,7 +378,7 @@ class ProfilesFragment : ToolbarFragment(), Toolbar.OnMenuItemClickListener {
     override fun onMenuItemClick(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_scan_qr_code -> {
-                startActivity(Intent(context, ScannerActivity::class.java))
+                startActivityForResult(Intent(context, CaptureActivity::class.java),REQUEST_SCAN_QRCODE)
                 true
             }
             R.id.action_import_clipboard -> {
@@ -380,35 +396,35 @@ class ProfilesFragment : ToolbarFragment(), Toolbar.OnMenuItemClickListener {
                 (activity as MainActivity).snackbar().setText(R.string.action_import_err).show()
                 true
             }
-            R.id.action_import_file -> {
-                startFilesForResult(Intent(Intent.ACTION_GET_CONTENT).apply {
-                    addCategory(Intent.CATEGORY_OPENABLE)
-                    type = "application/json"
-                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-                }, REQUEST_IMPORT_PROFILES)
-                true
-            }
-            R.id.action_manual_settings -> {
-                startConfig(ProfileManager.createProfile(
-                        Profile().also { Core.currentProfile?.copyFeatureSettingsTo(it) }))
-                true
-            }
-            R.id.action_export_clipboard -> {
-                val profiles = ProfileManager.getAllProfiles()
-                (activity as MainActivity).snackbar().setText(if (profiles != null) {
-                    clipboard.primaryClip = ClipData.newPlainText(null, profiles.joinToString("\n"))
-                    R.string.action_export_msg
-                } else R.string.action_export_err).show()
-                true
-            }
-            R.id.action_export_file -> {
-                startFilesForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                    addCategory(Intent.CATEGORY_OPENABLE)
-                    type = "application/json"
-                    putExtra(Intent.EXTRA_TITLE, "profiles.json")   // optional title that can be edited
-                }, REQUEST_EXPORT_PROFILES)
-                true
-            }
+//            R.id.action_import_file -> {
+//                startFilesForResult(Intent(Intent.ACTION_GET_CONTENT).apply {
+//                    addCategory(Intent.CATEGORY_OPENABLE)
+//                    type = "application/json"
+//                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+//                }, REQUEST_IMPORT_PROFILES)
+//                true
+//            }
+//            R.id.action_manual_settings -> {
+//                startConfig(ProfileManager.createProfile(
+//                        Profile().also { Core.currentProfile?.copyFeatureSettingsTo(it) }))
+//                true
+//            }
+//            R.id.action_export_clipboard -> {
+//                val profiles = ProfileManager.getAllProfiles()
+//                (activity as MainActivity).snackbar().setText(if (profiles != null) {
+//                    clipboard.primaryClip = ClipData.newPlainText(null, profiles.joinToString("\n"))
+//                    R.string.action_export_msg
+//                } else R.string.action_export_err).show()
+//                true
+//            }
+//            R.id.action_export_file -> {
+//                startFilesForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+//                    addCategory(Intent.CATEGORY_OPENABLE)
+//                    type = "application/json"
+//                    putExtra(Intent.EXTRA_TITLE, "profiles.json")   // optional title that can be edited
+//                }, REQUEST_EXPORT_PROFILES)
+//                true
+//            }
             else -> false
         }
     }
@@ -455,6 +471,30 @@ class ProfilesFragment : ToolbarFragment(), Toolbar.OnMenuItemClickListener {
                     (activity as MainActivity).snackbar(e.localizedMessage).show()
                 }
             }
+            REQUEST_SCAN_QRCODE -> {
+                if (null != data) {
+                    var bundle = data.extras
+                    if (bundle === null) {
+                        return
+                    }
+                    if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_SUCCESS) {
+                        var result = bundle.getString(CodeUtils.RESULT_STRING)
+                        try {
+                            val profiles = Profile.findAllUrls(result, Core.currentProfile)
+                                    .toList()
+                            if (profiles.isNotEmpty()) {
+                                profiles.forEach { ProfileManager.createProfile(it) }
+                                (activity as MainActivity).snackbar().setText(R.string.action_import_msg).show()
+                            }
+                        } catch (exc: Exception) {
+                            exc.printStackTrace()
+                        }
+                        (activity as MainActivity).snackbar().setText(R.string.action_import_err).show()
+                    } else if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_FAILED) {
+                        Toast.makeText(activity, "解析二维码失败", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
             else -> super.onActivityResult(requestCode, resultCode, data)
         }
     }
@@ -470,6 +510,7 @@ class ProfilesFragment : ToolbarFragment(), Toolbar.OnMenuItemClickListener {
             profilesAdapter.refreshId(profileId)
         }
     }
+
     fun onTrafficPersisted(profileId: Long) {
         txTotal = 0
         rxTotal = 0

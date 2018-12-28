@@ -59,6 +59,8 @@ import kotlin.reflect.KClass
 object Core {
     const val TAG = "Core"
 
+    @Volatile
+    var profileId:Long = -1
     lateinit var app: Application
     lateinit var configureIntent: (Context) -> PendingIntent
     val handler by lazy { Handler(Looper.getMainLooper()) }
@@ -72,11 +74,17 @@ object Core {
     }
 
     val currentProfile: Profile? get() =
-        if (DataStore.directBootAware) DirectBoot.getDeviceProfile() else ProfileManager.getProfile(DataStore.profileId)
+        if (DataStore.directBootAware)
+            DirectBoot.getDeviceProfile()
+        else{
+            ProfileManager.getProfile(DataStore.profileId)
+        }
 
     fun switchProfile(id: Long): Profile {
         val result = ProfileManager.getProfile(id) ?: ProfileManager.createProfile()
         DataStore.profileId = result.id
+        profileId = result.id
+        Log.i("Core", ""+DataStore.profileId)
         return result
     }
 

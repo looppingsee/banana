@@ -27,6 +27,7 @@ import com.github.shadowsocks.preference.BottomSheetPreferenceDialogFragment
 import com.github.shadowsocks.preference.DataStore
 import com.github.shadowsocks.preference.IconListPreference
 import com.takisoft.preferencex.PreferenceFragmentCompat
+import com.uuzuche.lib_zxing.activity.ZXingLibrary
 
 class App : Application() {
     override fun onCreate() {
@@ -35,6 +36,7 @@ class App : Application() {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         PreferenceFragmentCompat.registerPreferenceFragment(IconListPreference::class.java,
                 BottomSheetPreferenceDialogFragment::class.java)
+        ZXingLibrary.initDisplayOpinion(this)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
