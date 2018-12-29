@@ -9,20 +9,59 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
 
-            <Button
+            <ImageView
+                android:id="@+id/iv_logo"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="40dp"
+                android:background="@color/material_blue_grey_100"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:onClick="showAccountInfo"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="4dp"
+                android:includeFontPadding="false"
+                android:text="BananaNet"
+                android:textColor="#000"
+                android:textSize="22sp"
+                app:layout_constraintLeft_toRightOf="@+id/iv_logo"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="32dp"
+                android:text="00:00:00"
+                android:textColor="#808080"
+                android:textSize="16sp"
+                app:layout_constraintLeft_toRightOf="@+id/iv_logo"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
                 android:id="@+id/btn_start"
                 android:layout_width="80dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:layout_marginRight="20dp"
+                android:layout_height="34dp"
+                android:layout_marginRight="40dp"
+                android:background="@drawable/round_corner_start_btn_bg"
+                android:gravity="center"
                 android:text="启动"
+                android:textColor="#fff"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -30,54 +69,239 @@
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:layout_margin="20dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginRight="40dp"
             android:gravity="center"
             android:orientation="vertical"
-            app:cardBackgroundColor="#3d8dcf"
-            app:cardCornerRadius="6dp">
+            app:cardBackgroundColor="#162b4a"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="切线路"
-                android:textColor="#fff"
-                android:textSize="30sp"
-                android:onClick="show"/>
+                android:layout_marginLeft="15dp"
+                android:layout_marginBottom="15dp"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="show"
+                        android:paddingTop="15dp"
+                        android:text="Banana - 香港"
+                        android:textColor="#fff"
+                        android:textSize="22sp" />
+
+                    <TextView
+                        android:layout_width="84dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginRight="15dp"
+                        android:background="@drawable/round_corner_btn_bg_blk"
+                        android:gravity="center"
+                        android:onClick="show"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp"
+                        android:text="切换线路"
+                        android:textColor="#fff" />
+                </RelativeLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Banana智能付费线路，高速，稳定，价格优！"
+                    android:textColor="#fff" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="show"
+                        android:paddingTop="15dp"
+                        android:text="剩余时长"
+                        android:textColor="#fff"
+                        android:textSize="22sp" />
+
+                    <TextView
+                        android:layout_width="84dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginRight="15dp"
+                        android:background="@drawable/round_corner_btn_bg_blk"
+                        android:gravity="center"
+                        android:paddingLeft="10dp"
+                        android:paddingTop="6dp"
+                        android:paddingRight="10dp"
+                        android:paddingBottom="6dp"
+                        android:text="购买"
+                        android:textColor="#fff" />
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/tv_left_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="300天10小时 "
+                    android:textColor="#fff" />
+            </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:layout_margin="20dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginRight="40dp"
             android:gravity="center"
             android:orientation="vertical"
-            app:cardBackgroundColor="#6e3dcf"
-            app:cardCornerRadius="6dp">
+            app:cardBackgroundColor="#58a9e7"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="2"
-                android:textColor="#fff"
-                android:textSize="30sp" />
+                android:layout_marginLeft="15dp"
+                android:layout_marginBottom="15dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="show"
+                    android:paddingTop="15dp"
+                    android:text="上网规则"
+                    android:textColor="#fff"
+                    android:textSize="22sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="15dp"
+                    android:text="Banana提供了多种上网规则，选择相应的上网规则，提升上网体验，节省上网流量"
+                    android:textColor="#fff" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp">
+
+                    <TextView
+                        android:layout_width="84dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="15dp"
+                        android:background="@drawable/round_corner_btn_bg"
+                        android:gravity="center"
+                        android:onClick="goToModeChoose"
+                        android:paddingLeft="10dp"
+                        android:paddingTop="6dp"
+                        android:paddingRight="10dp"
+                        android:paddingBottom="6dp"
+                        android:text="选择规则"
+                        android:textColor="#fff" />
+
+                    <!--<TextView-->
+                    <!--android:id="@+id/tv_advanced_setting"-->
+                    <!--android:layout_width="84dp"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_alignParentRight="true"-->
+                    <!--android:layout_marginRight="15dp"-->
+                    <!--android:background="@drawable/round_corner_btn_bg"-->
+                    <!--android:gravity="center"-->
+                    <!--android:paddingLeft="10dp"-->
+                    <!--android:paddingTop="6dp"-->
+                    <!--android:paddingRight="10dp"-->
+                    <!--android:paddingBottom="6dp"-->
+                    <!--android:text="高级设置"-->
+                    <!--android:textColor="#fff"/>-->
+                </RelativeLayout>
+            </LinearLayout>
+
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:layout_margin="20dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="40dp"
             android:gravity="center"
             android:orientation="vertical"
-            app:cardBackgroundColor="#3dcfab"
-            app:cardCornerRadius="6dp">
+            app:cardBackgroundColor="#75c892"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="16dp">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="3"
-                android:textColor="#fff"
-                android:textSize="30sp" />
+                android:layout_marginBottom="15dp"
+                android:orientation="vertical"
+                android:paddingLeft="15dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="show"
+                        android:paddingTop="15dp"
+                        android:text="联系我们"
+                        android:textColor="#fff"
+                        android:textSize="22sp" />
+
+                    <TextView
+                        android:layout_width="84dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginRight="15dp"
+                        android:background="@drawable/round_corner_btn_bg_grn"
+                        android:gravity="center"
+                        android:paddingLeft="10dp"
+                        android:paddingTop="6dp"
+                        android:paddingRight="10dp"
+                        android:paddingBottom="6dp"
+                        android:text="一键加群"
+                        android:textColor="#fff" />
+                </RelativeLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="15dp"
+                    android:text="如有任何关于购买套餐，产品使用，产品优化等问题，可加入Banana telegram群进行咨询讨论"
+                    android:textColor="#fff" />
+            </LinearLayout>
         </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/tv_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="版本 1.0.0"
+            android:textSize="14sp"
+            android:textColor="#808080"
+            android:layout_marginTop="20dp"
+            android:layout_gravity="center_horizontal"/>
     </LinearLayout>
 </com.github.shadowsocks.widget.RubberScrollView>

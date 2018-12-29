@@ -117,6 +117,7 @@
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
         </activity>
+        <activity android:name=".ChooseModeActivity"></activity>
     </application>
 
 </manifest>
