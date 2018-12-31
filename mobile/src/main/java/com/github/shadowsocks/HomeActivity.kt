@@ -2,6 +2,8 @@ package com.github.shadowsocks
 
 import android.app.Activity
 import android.app.backup.BackupManager
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.database.DataSetObserver
 import android.graphics.Color
@@ -9,9 +11,11 @@ import android.net.VpnService
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.os.SystemClock
 import android.provider.Settings
 import android.text.TextUtils
 import android.util.Log
+import android.util.TypedValue
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
@@ -29,11 +33,14 @@ import com.github.shadowsocks.utils.Key
 import com.github.shadowsocks.utils.SharedPreferencesHelper
 import com.github.shadowsocks.widget.BottomSheetDialog
 import com.github.shadowsocks.widget.BottomSheetDialogListView
+import kotlinx.android.synthetic.main.custom_sheet_layout.view.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
+import java.security.AccessController.getContext
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class HomeActivity : AppCompatActivity(), ShadowsocksConnection.Interface, OnPreferenceDataStoreChangeListener {
     companion object {
@@ -43,15 +50,18 @@ class HomeActivity : AppCompatActivity(), ShadowsocksConnection.Interface, OnPre
     }
 
     private lateinit var btnStart: TextView
+    private lateinit var tvTime:TextView
     private lateinit var spHelper: SharedPreferencesHelper
     private var dialog: BottomSheetDialog? = null
 
     /*****************计时器*******************/
-    private var timeRunable = Runnable {
-        currentSecond = currentSecond + 1000;
-        timerText.setText(TimeUtil.getFormatHMS(currentSecond));
-        //递归调用本runable对象，实现每隔一秒一次执行任务
-        mhandle.postDelayed(thi, 1000);
+    private var timeRunable = object : Runnable {
+        override fun run() {
+            currentSecond += 1000
+            tvTime.text = getFormatHMS(currentSecond)
+            //递归调用本runable对象，实现每隔一秒一次执行任务
+            mhandle.postDelayed(this, 1000)
+        }
     }
     //计时器
     private var mhandle = Handler()
@@ -64,7 +74,16 @@ class HomeActivity : AppCompatActivity(), ShadowsocksConnection.Interface, OnPre
         object : IShadowsocksServiceCallback.Stub() {
             override fun stateChanged(state: Int, profileName: String?, msg: String?) {
                 Core.handler.post {
-                    if ()
+                    if(state == BaseService.CONNECTED) {
+                        spHelper.put("start_time",SystemClock.currentThreadTimeMillis().toString())
+                        mhandle.post(timeRunable)
+                        btnStart.text = "关闭"
+                    }else if(state == BaseService.STOPPED){
+                        spHelper.remove("start_time")
+                        mhandle.removeCallbacks(timeRunable)
+                        tvTime.text = "00:00:00"
+                        btnStart.text = "启动"
+                    }
                 }
             }
 
@@ -184,6 +203,19 @@ class HomeActivity : AppCompatActivity(), ShadowsocksConnection.Interface, OnPre
         return false
     }
 
+    /**
+     * 根据毫秒返回时分秒
+     * @param time
+     * @return
+     */
+    fun getFormatHMS(time:Long):String{
+        var temp = time/1000
+        var s:Int= (temp%60).toInt()//秒
+        var m:Int= (temp/60).toInt()//分
+        var h:Int= (temp/3600).toInt()//秒
+        return String.format("%02d:%02d:%02d",h,m,s)
+    }
+
     fun generateUserName(): String {
         return Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID)
     }
@@ -217,6 +249,8 @@ class HomeActivity : AppCompatActivity(), ShadowsocksConnection.Interface, OnPre
         var accountStr = spHelper.getSharedPreference("account")
         var accounts = accountStr.split("\n")
         for (account in accounts) {
+            if(!account.contains("/"))
+                continue
             var name = account.split("/")[0]
             var time = account.split("/")[1]
             if (name.equals(curName)) {
@@ -234,9 +268,13 @@ class HomeActivity : AppCompatActivity(), ShadowsocksConnection.Interface, OnPre
         var content = "用户名:" + generateUserName() + "\n到期时间:" + time
         AlertDialog.Builder(this)
                 .setTitle("账户信息")
-                .setPositiveButton("复制") { _, _ -> }
-                .setNegativeButton("取消") { _, _ -> finish() }
-                .setNeutralButton(android.R.string.cancel, null)
+                .setMessage(content)
+                .setPositiveButton("复制") { _, _ ->
+                    val tvCopy = this@HomeActivity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    tvCopy.text = content
+                    Toast.makeText(this@HomeActivity, "账号信息已复制到剪切板", Toast.LENGTH_LONG).show();
+                }
+                .setNegativeButton("取消",null)
                 .create()
                 .show()
     }
@@ -263,8 +301,21 @@ class HomeActivity : AppCompatActivity(), ShadowsocksConnection.Interface, OnPre
 
     private fun initListView(l: BottomSheetDialogListView) {
         var configsStr = spHelper.getSharedPreference("vconfig")
-        var datas = configsStr.split("\n")
-        setConfig(datas[0])
+        var temps = configsStr.split("\n")
+        var datas = ArrayList<String>()
+        for (temp in temps) {
+            var name = temp.split(":")[2]
+            var num:Int = 0
+            for (data in datas) {
+                if(data.contains(name)) num++
+            }
+            if(num == 0) {
+                datas.add("线路 - $name")
+            }else {
+                datas.add("线路 - $name$num")
+            }
+        }
+        setConfig(temps[0])
         l.adapter = object : ListAdapter {
             override fun areAllItemsEnabled(): Boolean {
                 return false
@@ -301,29 +352,23 @@ class HomeActivity : AppCompatActivity(), ShadowsocksConnection.Interface, OnPre
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 var convertView = convertView
                 if (convertView == null) {
-                    convertView = TextView(parent.context)
-                    convertView.layoutParams = AbsListView.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            40 * 3 // 40dp
-                    )
+                    convertView = LayoutInflater.from(parent.context).inflate(R.layout.item_line,parent,false)
                 }
-                val t = convertView as TextView?
-                t!!.setTextColor(Color.BLACK)
-                t.gravity = Gravity.CENTER
-                t.text = datas[position]
-                t.textSize = 17f
-                t.setOnClickListener {
-                    setConfig(datas[position])
+                val t = convertView?.findViewById<TextView>(R.id.tv_line)
+                t?.text = datas[position]
+                t?.setOnClickListener {
+                    setConfig(temps[position])
                     dialog?.dismiss()
-                    Core.stopService()
+                    Core.reloadService()
+                    Toast.makeText(this@HomeActivity, "线路已切换,请重新启动", Toast.LENGTH_LONG).show();
                 }
-                t.setOnTouchListener { v, event ->
+                t?.setOnTouchListener { v, event ->
                     if (event.action == MotionEvent.ACTION_DOWN) {
                         l.setCoordinatorDisallow()
                     }
                     false
                 }
-                return t
+                return t?:TextView(parent.context)
             }
 
             override fun getItemViewType(position: Int): Int {
@@ -343,6 +388,7 @@ class HomeActivity : AppCompatActivity(), ShadowsocksConnection.Interface, OnPre
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+        tvTime = findViewById(R.id.tv_time)
         btnStart = findViewById(R.id.btn_start)
         btnStart.setOnClickListener {
             when {

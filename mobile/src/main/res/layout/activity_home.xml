@@ -41,6 +41,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
+                android:id="@+id/tv_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="12dp"
@@ -97,7 +98,7 @@
                         android:paddingTop="15dp"
                         android:text="Banana - 香港"
                         android:textColor="#fff"
-                        android:textSize="22sp" />
+                        android:textSize="20sp" />
 
                     <TextView
                         android:layout_width="84dp"
@@ -133,7 +134,7 @@
                         android:paddingTop="15dp"
                         android:text="剩余时长"
                         android:textColor="#fff"
-                        android:textSize="22sp" />
+                        android:textSize="20sp" />
 
                     <TextView
                         android:layout_width="84dp"
@@ -187,7 +188,7 @@
                     android:paddingTop="15dp"
                     android:text="上网规则"
                     android:textColor="#fff"
-                    android:textSize="22sp" />
+                    android:textSize="20sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -266,7 +267,7 @@
                         android:paddingTop="15dp"
                         android:text="联系我们"
                         android:textColor="#fff"
-                        android:textSize="22sp" />
+                        android:textSize="20sp" />
 
                     <TextView
                         android:layout_width="84dp"

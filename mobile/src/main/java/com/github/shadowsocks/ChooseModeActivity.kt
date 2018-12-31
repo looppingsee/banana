@@ -8,11 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.shadowsocks.acl.Acl
 import com.github.shadowsocks.bean.NetModeBean
+import com.github.shadowsocks.preference.DataStore
+import com.github.shadowsocks.utils.Key
 
 class ChooseModeActivity : Activity() {
     private var modes: List<NetModeBean>? = null
@@ -57,6 +58,7 @@ class ChooseModeActivity : Activity() {
                     data.isCheck = false
                 }
                 datas!![position].isCheck = true
+                DataStore.privateStore.putString(Key.route,modeBean.mode)
                 notifyDataSetChanged()
             }
         }
